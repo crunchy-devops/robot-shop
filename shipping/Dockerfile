@@ -1,8 +1,8 @@
 #
 # Build
 #
-FROM debian:10 AS build
-
+# FROM debian:10 AS build
+FROM debian AS build
 RUN apt-get update && apt-get -y install maven
 
 WORKDIR /opt/shipping
@@ -15,7 +15,8 @@ RUN mvn package
 #
 # Run
 #
-FROM openjdk:8-jdk
+#FROM openjdk:8-jdk
+FROM openjdk:11-jdk
 
 EXPOSE 8080
 
