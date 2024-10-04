@@ -113,7 +113,7 @@ def pay(id):
 
     # delete cart
     try:
-        req = requests.delete('http://{cart}:8080/cart/{id}'.format(cart=CART, id=id));
+        req = requests.delete('http://{cart}:8080/cart/{id}'.format(cart=CART, id=id))
         app.logger.info('cart delete returned {}'.format(req.status_code))
     except requests.exceptions.RequestException as err:
         app.logger.error(err)
@@ -152,6 +152,6 @@ if __name__ == "__main__":
     sh.setLevel(logging.INFO)
     fmt = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     app.logger.info('Payment gateway {}'.format(PAYMENT_GATEWAY))
-    port = int(os.getenv("SHOP_PAYMENT_PORT", "8080"))
+    port = int(os.getenv("SHOP_PAYMENT_PORT", "30080"))
     app.logger.info('Starting on port {}'.format(port))
     app.run(host='0.0.0.0', port=port)
