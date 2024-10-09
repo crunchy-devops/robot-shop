@@ -3,12 +3,15 @@
 ## install Docker on ubuntu 24.04
 ```shell
 sudo apt update
-sudo apt install curl apt-transport-https ca-certificates software-properties-common
+sudo apt install -y curl apt-transport-https ca-certificates software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
 sudo apt install docker-ce -y
 sudo systemctl status docker
-sudo usermode -aG docker $USER
+sudo usermod -aG docker $USER
+# log out log in again
+docker ps # check
 ```
 
 ## install docker-compose
@@ -19,3 +22,9 @@ docker-compose version
 ```
 
 ## install robot-shop 
+```shell
+git clone https://github.com/crunchy-devops/robot-shop.git
+cd robot-shop
+docker-compose build
+docker-compose up -d
+```
