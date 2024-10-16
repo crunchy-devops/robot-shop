@@ -39,5 +39,28 @@ pipeline {
                 sh 'docker-compose down && docker-compose up -d'
             }
         }
+        stage('Tag images') {
+            steps{
+                script {
+                          def nexus = "nexus:30999"
+                          def output = sh(script: "docker images --all   --filter=reference='robotshop/*:${env.GIT_COMMIT_HASH}'  --format '{{.Repository}}'", returnStdout: true).trim()
+                          def imageArray = output.split("\n")
+
+                          for (image in imageArray) {
+                            echo "Processing image: ${image}"
+                            def inter = image.split("/")
+                            echo " ${inter[0]} and ${inter[1]}"
+                            def nexusimage = nexus + "/" + inter[1] + ":" + env.GIT_COMMIT_HASH
+                            echo "${nexusimage}"
+                            def imageTag = image + ":" + env.GIT_COMMIT_HASH
+                            def tag = sh(script: "docker tag ${imageTag} ${nexusimage}", returnStdout: true).trim()
+                            echo "$tag"
+                            withCredentials([usernamePassword(credentialsId: 'nexuslogin', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                               def push = sh(script: "docker login ${nexus} -u ${USERNAME} -p ${PASSWORD} && docker push ${nexusimage}" , returnStdout: true).trim()
+                            }
+                       }
+                    }
+                }
+        }
     }
 }
