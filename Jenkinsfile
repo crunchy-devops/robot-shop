@@ -39,7 +39,7 @@ pipeline {
                 sh 'docker-compose down && docker-compose up -d'
             }
         }
-        stage('Tag images') {
+        stage('Tag images and push them to nexus') {
             steps{
                 script {
                           def nexus = "nexus:30999"
