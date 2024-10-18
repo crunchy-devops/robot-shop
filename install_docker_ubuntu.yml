@@ -13,15 +13,5 @@
           - ca-certificates
           - curl
           - software-properties-common
-    - name: Add official GPG key
-      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg |  gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-    - name: update all packages
-      apt:
-        update_cache: yes
-    - name: install docker packages
-      apt:
-        pkg:
-          - docker-ce
-    - name: Set current user to docker group
-      command: usermod -aG docker {{ ansible_user }}
+
 
