@@ -14,7 +14,7 @@
           - curl
           - software-properties-common
     - name: Add official GPG key
-      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
     - name: update all packages
       apt:
         update_cache: yes
