@@ -96,4 +96,7 @@ kubectl get secret -n awx  awx-demo-admin-password -o jsonpath="{.data.password}
 ## Web access
 ````
 kubectl port-forward -n awx service/awx-demo-service 30880:80 --address='0.0.0.0'
+echo fs.inotify.max_user_watches=655360 | sudo tee -a /etc/sysctl.conf
+echo fs.inotify.max_user_instances=1280 | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
 ```
