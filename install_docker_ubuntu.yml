@@ -17,9 +17,8 @@
     - name: Add official GPG key
       shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg
       register: dockergpg
-    - name:
-        debug:
-          var: dockergpg.stdout
+    - debug:
+        msg= "STDOUT - {{ dockergpg.stdout }}"
     - name: get OS architecture
       shell: dpkg --print-architecture
       register: architecture
