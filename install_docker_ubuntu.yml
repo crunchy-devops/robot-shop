@@ -15,10 +15,10 @@
           - software-properties-common
           - gnupg
     - name: Add official GPG key
-      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg >> docker.gpg
       register: dockergpg
     - name: gpg docker key
-      shell: gpg --dearmor {{ dockergpg.stdout }} -o /usr/share/keyrings/docker-archive-keyring.gpg
+      shell: gpg --dearmor docker.gpg -o /usr/share/keyrings/docker-archive-keyring.gpg
     - name: get OS architecture
       shell: dpkg --print-architecture
       register: architecture
