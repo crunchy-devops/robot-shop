@@ -18,7 +18,7 @@
       shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg
       register: dockergpg
     - name: gpg docker key
-      shell: gpg --dearmor {{ dockergpg }} -o /usr/share/keyrings/docker-archive-keyring.gpg
+      shell: gpg --dearmor {{ dockergpg.stdout }} -o /usr/share/keyrings/docker-archive-keyring.gpg
     - name: get OS architecture
       shell: dpkg --print-architecture
       register: architecture
