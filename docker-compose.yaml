@@ -111,24 +111,6 @@ services:
       retries: 3
     logging:
       <<: *logging
-  payment:
-    build:
-      context: payment
-    image: ${REPO}/rs-payment:${TAG}
-    depends_on:
-      - rabbitmq
-    networks:
-      - robot-shop
-    healthcheck:
-      test: ["CMD", "curl", "-H", "X-INSTANA-SYNTHETIC: 1", "-f", "http://localhost:8080/health"]
-      interval: 10s
-      timeout: 10s
-      retries: 3
-    # Uncomment to change payment gateway
-    #environment:
-      #PAYMENT_GATEWAY: "https://www.worldpay.com"
-    logging:
-      <<: *logging
   dispatch:
     build:
       context: dispatch
