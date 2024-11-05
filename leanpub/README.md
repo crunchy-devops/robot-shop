@@ -29,7 +29,7 @@ docker-compose build
 docker-compose up -d
 ```
 
-## install kind 
+## install on kubernetes kind
 ```shell
 wget https://github.com/kubernetes-sigs/kind/releases/download/v0.24.0/kind-linux-amd64
 mv kind-linux-amd64 kind
@@ -46,13 +46,11 @@ alias ks='kubectl'
 source <(kubectl completion bash | sed s/kubectl/ks/g)
 ```
 
-## Create a cluster 
+## Create a cluster
 ```shell
-cd leanpub 
 kind create cluster --name ansible --config kind-config-cluster.yml
 ks version # should be version  v1.31.1+
-ks get nodes
-
+ks get nodes # see one controle-plane and 3 workers
 ```
 
 ## install AWX
@@ -61,11 +59,11 @@ cd
 git clone https://github.com/ansible/awx-operator.git
 cd awx-operator/
 git checkout tags/2.19.1
-git log --oneline  # HEAD should be on tag 2.19.1
-EXPORT VERSION=2.19.1
+git log --oneline  # HEAD should be on tag 2.19.1 #hash dd37ebd
+export VERSION=2.19.1
 ```
 
- ### Manually create file Kustomizeation.yaml
+### Manually create file kustomization.yaml
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -82,20 +80,26 @@ images:
 namespace: awx
 ```
 ```ks create ns awx```
-```ks apply -k . ```
+```ks apply -k . ```  run twice this command
 
-Wait 15 minutes 
-And Check with ```ks get pod -A```
+Wait 15 minutes
+And check with ```ks get pod -A``` # all K8s objects should be running, completed
 
 ## User AWX
-useranme admin 
-Password 
+username admin
+Password uses the commande below
 ```shell
 kubectl get secret -n awx  awx-demo-admin-password -o jsonpath="{.data.password}" | base64 --decode ; echo
 ```
 ## Web access
-````
+```
 kubectl port-forward -n awx service/awx-demo-service 30880:80 --address='0.0.0.0'
+```
+access to AWX with http://<ip>:30880
+
+
+## Troubleshooting to prevent job template failure in AWX
+```shell
 echo fs.inotify.max_user_watches=655360 | sudo tee -a /etc/sysctl.conf
 echo fs.inotify.max_user_instances=1280 | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p
