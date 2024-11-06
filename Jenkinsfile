@@ -3,7 +3,8 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/crunchy-devops/robot-shop.git'
+                git branch:'v1', url: 'https://github.com/crunchy-devops/robot-shop.git'
+                //git 'https://github.com/crunchy-devops/robot-shop.git'
                 //checkout scm
             }
         }
