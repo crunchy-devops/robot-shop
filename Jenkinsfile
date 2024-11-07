@@ -3,9 +3,8 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch:'v1', url: 'https://github.com/crunchy-devops/robot-shop.git'
-                //git 'https://github.com/crunchy-devops/robot-shop.git'
-                //checkout scm
+                    checkout scmGit(tags: [[name: 'v1']],
+                        userRemoteConfigs: [[url: 'https://github.com/crunchy-devops/robot-shop.git']])
             }
         }
         stage('Retrieve Git Commit Hash') {
