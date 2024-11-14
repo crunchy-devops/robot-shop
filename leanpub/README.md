@@ -104,3 +104,8 @@ echo fs.inotify.max_user_watches=655360 | sudo tee -a /etc/sysctl.conf
 echo fs.inotify.max_user_instances=1280 | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p
 ```
+
+## Check images size stats
+```shell
+docker images --all --filter=reference='robotshop/*:ebde46fae5ae' --format "{{.Repository}}\t{{.Size}}" >/bitnami/jenkins/home/checkimages/build-11
+```
