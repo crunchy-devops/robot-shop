@@ -3,8 +3,9 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                    checkout scmGit(tags: [[name: 'v1']],
-                        userRemoteConfigs: [[url: 'https://github.com/crunchy-devops/robot-shop.git']])
+                checkout scmGit(tags: [[name: 'v1']],
+                    userRemoteConfigs: [[url: 'https://github.com/crunchy-devops/robot-shop.git']])
+
             }
         }
         stage('Retrieve Git Commit Hash') {
@@ -38,6 +39,43 @@ pipeline {
             steps{
                 sh 'docker-compose down && docker-compose up -d'
             }
+        }
+        stage('create build report') {
+            steps{
+                sh "docker images --all --filter=reference='robotshop/*:${env.GIT_COMMIT_HASH}' --format '{{.Repository}}\t{{.Size}}' >/bitnami/jenkins/home/checkimages/build/build-${env.BUILD_NUMBER}"
+            }
+        }
+        stage('check docker images size') {
+            steps{
+                sh 'python3 /bitnami/jenkins/home/checkimages/check-docker-images.py'
+            }
+        }
+        stage('alert docker images size') {
+            steps {
+                script {
+                    // Read the logs of the current build
+                    def log = currentBuild.rawBuild.getLog(1000) // Reads up to 1000 lines
+                    def pattern = /Value:\s*([0-9]*\.[0-9]+)/
+
+                    // Iterate over each line in the log
+                    log.each { line ->
+                        def matcher = (line =~ pattern)
+                        if (matcher.find()) {
+                            // Extract the value and convert it to an integer
+
+                            def value = matcher.group(1).toFloat()
+
+                            // Check if the value is out of the specified limits, 25%
+                            if (value > 25.00 ) {
+
+                                echo "ALERT: Value ${value} is out of limits!"
+                                // You can mark the build as unstable, or fail it based on requirements
+                                currentBuild.result = 'UNSTABLE'
+                            }
+                        }
+                    }
+                }
+              }
         }
         stage('Tag images and push them to nexus') {
             steps{

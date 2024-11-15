@@ -1,43 +1,6 @@
 ---
-- name: Install Docker on Ubuntu 24.04
+- name: Install Docker on Ubuntu
   hosts: all
   become: true
-  tasks:
-    - name: update all packages
-      apt:
-        update_cache: yes
-    - name: Add pre-requisite packages
-      apt:
-        pkg:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - software-properties-common
-          - gnupg
-    - name: Add official GPG key
-      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg >> docker.gpg
-      register: dockergpg
-    - name: gpg docker key
-      shell: gpg --dearmor docker.gpg -o /usr/share/keyrings/docker-archive-keyring.gpg
-    - name: get OS architecture
-      shell: dpkg --print-architecture
-      register: architecture
-    - name: get OS release
-      shell: lsb_release -cs
-      register: release
-    - name: copy template file
-      template:
-        src: docker.list
-        dest: /etc/apt/sources.list.d/docker.list
-    #- name: add specificed repository into source list
-    #  shell: echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    #- name: update all packages
-    #  apt:
-    #    update_cache: yes
-    #- name: install docker packages
-    #  apt:
-    #    pkg:
-    #      - docker-ce
-    #- name: Set current user to docker group
-    #  command: usermod -aG docker {{ ansible_user }}
-
+  roles:
+    - geerlingguy.docker
