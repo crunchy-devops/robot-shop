@@ -14,14 +14,19 @@
         state: present
         update_cache: yes
     - name: install kubectl
-      community.general.snap:
-        name: kubectl
-        classic: true
+      shell: snap install kubectl --classic
     - name: copy KinD config cluster file
       copy:
         src: 'leanpub/kind-config-cluster.yml'
         dest: '/home/ubuntu'
+    - name: Check if the cluster exist
+      shell: kind get clusters
+      register: result
+    - name: Return value
+      debug:
+        msg: "{{ result.stdout }}"
     - name: create KinD cluster
       shell:
         cmd: kind create cluster --name remote --config kind-config-cluster.yml
         chdir: /home/ubuntu
+      when: result.stdout != "remote"
