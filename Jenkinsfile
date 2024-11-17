@@ -5,7 +5,9 @@ pipeline {
             steps {
                 checkout scmGit(tags: [[name: 'v1']],
                     userRemoteConfigs: [[url: 'https://github.com/crunchy-devops/robot-shop.git']])
-
+                //git branch:'master', url: 'https://github.com/crunchy-devops/robot-shop.git'
+                //git 'https://github.com/crunchy-devops/robot-shop.git'
+                //checkout scm
             }
         }
         stage('Retrieve Git Commit Hash') {
@@ -100,5 +102,10 @@ pipeline {
                     }
                 }
         }
-    }
+        stage('install docker'){
+            steps {
+                    ansibleTower jobTemplate: 'install docker', jobType: 'run', throwExceptionWhenFail: false, towerCredentialsId: 'ansiblelogin', towerLogLevel: 'full', towerServer: 'awx'
+                }
+        }
+   }
 }
