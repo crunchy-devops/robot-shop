@@ -1,0 +1,27 @@
+---
+- name: Install KinD
+  hosts: all
+  become: true
+  tasks:
+    - name: install KinD
+      get_url:
+        url:  https://github.com/kubernetes-sigs/kind/releases/download/v0.24.0/kind-linux-amd64
+        dest: /usr/local/bin/kind
+        mode: 0755
+    - name:  install snap
+      apt:
+        name: snap
+        state: present
+        update_cache: yes
+    - name: install kubectl
+      snap:
+        name: kubectl
+        classic: true
+    - name: copy KinD config cluster file
+      copy:
+        src: 'leanpub/kind-config-cluster.yml'
+        dest: '/home/ubuntu'
+    - name: create KinD cluster
+      shell:
+        cmd: kind create cluster --name remote --config kind-config-cluster.yml
+        chdir: /home/ubuntu
