@@ -19,7 +19,7 @@
       copy:
         src: 'leanpub/kind-config-cluster.yml'
         dest: '/home/ubuntu'
-    - name: Check if the cluster exist
+    - name: Check if the cluster exists
       shell: kind get clusters
       register: result
     - name: Return value
