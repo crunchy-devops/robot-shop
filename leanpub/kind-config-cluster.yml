@@ -11,6 +11,10 @@ kubeadmConfigPatches:
     networking:
       podSubnet: "192.168.0.0/16" # Custom pod subnet for cluster 1
       serviceSubnet: "10.96.0.0/12" # Custom service subnet for cluster 1
+containerdConfigPatches:
+  - |
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."nexus:30999"]
+        endpoint = ["http://nexus:30999"]
 nodes:
   - role: control-plane
   - role: worker

@@ -15,6 +15,8 @@
         update_cache: yes
     - name: install kubectl
       shell: snap install kubectl --classic
+    - name: install helm
+      shell: snap install helm --classic
     - name: copy KinD config cluster file
       copy:
         src: 'leanpub/kind-config-cluster.yml'

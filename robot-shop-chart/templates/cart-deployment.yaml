@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    io.kompose.service: cart
+  name: cart
+spec:
+  replicas: {{ .Values.cart.replicas }}
+  selector:
+    matchLabels:
+      io.kompose.service: cart
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.34.0 (cbf2835db)
+      labels:
+        io.kompose.service: cart
+    spec:
+      containers:
+        - image: {{ .Values.nexus }}/{{ .Values.cart.image }}:{{ .Values.tag }}
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -H
+                - 'X-INSTANA-SYNTHETIC: 1'
+                - -f
+                - http://localhost:8080/health
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 10
+          name: cart
+      imagePullSecrets:
+      - name: nexus-cred
+      restartPolicy: Always
