@@ -48,9 +48,9 @@ source <(kubectl completion bash | sed s/kubectl/ks/g)
 
 ## Create a cluster
 ```shell
-kind create cluster --name ansible --config kind-config-cluster.yml
+kind create cluster --name awx --config kind-config-cluster.yml
 ks version # should be version  v1.31.1+
-ks get nodes # see one controle-plane and 3 workers
+ks get nodes # see one control-plane and 3 workers
 ```
 
 ## install AWX
@@ -60,7 +60,14 @@ git clone https://github.com/ansible/awx-operator.git
 cd awx-operator/
 git checkout tags/2.19.1
 git log --oneline  # HEAD should be on tag 2.19.1 #hash dd37ebd
-export VERSION=2.19.1
+q
+```
+
+## Troubleshooting to prevent job template failure in AWX
+```shell
+echo fs.inotify.max_user_watches=655360 | sudo tee -a /etc/sysctl.conf
+echo fs.inotify.max_user_instances=1280 | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
 ```
 
 ### Manually create file kustomization.yaml
@@ -98,12 +105,6 @@ kubectl port-forward -n awx service/awx-demo-service 30880:80 --address='0.0.0.0
 access to AWX with http://<ip>:30880
 
 
-## Troubleshooting to prevent job template failure in AWX
-```shell
-echo fs.inotify.max_user_watches=655360 | sudo tee -a /etc/sysctl.conf
-echo fs.inotify.max_user_instances=1280 | sudo tee -a /etc/sysctl.conf
-sudo sysctl -p
-```
 
 ## Check images size stats
 ```shell

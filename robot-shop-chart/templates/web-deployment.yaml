@@ -22,17 +22,6 @@ spec:
     spec:
       containers:
         - image: {{ .Values.nexus }}/{{ .Values.web.image }}:{{ .Values.tag }}
-          livenessProbe:
-            exec:
-              command:
-                - curl
-                - -H
-                - 'X-INSTANA-SYNTHETIC: 1'
-                - -f
-                - http://localhost:8080/
-            failureThreshold: 3
-            periodSeconds: 10
-            timeoutSeconds: 10
           name: web
           ports:
             - containerPort: 8080

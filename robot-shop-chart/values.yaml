@@ -34,3 +34,6 @@ user:
 web:
   replicas: 1
   image: rs-web
+test_redis:
+  replicas: 1
+  image: test-redis
