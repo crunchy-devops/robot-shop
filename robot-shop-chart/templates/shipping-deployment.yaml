@@ -23,6 +23,11 @@ spec:
       containers:
         - image: {{ .Values.nexus }}/{{ .Values.shipping.image }}:{{ .Values.tag }}
           name: shipping
+          env:
+            - name: DB_HOST
+              value: mysql.default.svc.cluster.local
+            - name: DB_PORT
+              value: "3306"
       imagePullSecrets:
         - name: nexus-cred
       restartPolicy: Always

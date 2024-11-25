@@ -1,0 +1,28 @@
+---
+# MySQL Pod configuration
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-pod
+spec:
+  containers:
+    - name: mysql
+      image: mysql:8.0
+      env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "your-root-password"
+      ports:
+        - containerPort: 3306
+          name: mysql
+      volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+        - name: dump-storage
+          mountPath: /docker-entrypoint-initdb.d
+  volumes:
+    - name: mysql-storage
+      persistentVolumeClaim:
+        claimName: mysql-pvc
+    - name: dump-storage
+      persistentVolumeClaim:
+        claimName: dump-pvc

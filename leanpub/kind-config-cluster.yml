@@ -17,6 +17,18 @@ containerdConfigPatches:
         endpoint = ["http://nexus:30999"]
 nodes:
   - role: control-plane
+    extraMounts:
+      - hostPath: /mnt/nfs_share
+        containerPath: /mnt/nfs_share
   - role: worker
+    extraMounts:
+      - hostPath: /mnt/nfs_share
+        containerPath: /mnt/nfs_share
   - role: worker
+    extraMounts:
+      - hostPath: /mnt/nfs_share
+        containerPath: /mnt/nfs_share
   - role: worker
+    extraMounts:
+      - hostPath: /mnt/nfs_share
+        containerPath: /mnt/nfs_share

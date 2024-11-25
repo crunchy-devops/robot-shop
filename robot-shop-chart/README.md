@@ -28,4 +28,30 @@ watch 'kubectl get pods'
     
 ```
 
+## useful commands
+```shell
+echo -n 'admin' | base64
+```
+
+## install nfs in kubernetes kind
+```shell
+sudo apt update
+sudo apt install -y nfs-kernel-server
+sudo mkdir -p /mnt/nfs_share
+sudo chown nobody:nogroup /mnt/nfs_share
+vi /etc/exports
+sudo vi /etc/exports
+sudo exportfs -rav
+sudo exportfs -v
+sudo systemctl enable --now nfs-server
+# change kind-config file
+
+
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+helm repo update
+helm install nfs-client nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+  --set nfs.server=172.16.0.8 \
+  --set nfs.path=/mnt/nfs_share
+
+```
 

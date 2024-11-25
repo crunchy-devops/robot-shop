@@ -1,0 +1,157 @@
+# tomcat-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tomcat-config
+data:
+  # Custom server.xml configurations if needed
+  server.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <Server port="8005" shutdown="SHUTDOWN">
+        <Service name="Catalina">
+            <Connector port="8080" protocol="HTTP/1.1"
+                       connectionTimeout="20000"
+                       redirectPort="8443" />
+            <Engine name="Catalina" defaultHost="localhost">
+                <Host name="localhost" appBase="webapps"
+                      unpackWARs="true" autoDeploy="true">
+                </Host>
+            </Engine>
+        </Service>
+    </Server>
+  tomcat-users.xml: |
+   <?xml version="1.0" encoding="UTF-8"?>  
+   <tomcat-users xmlns="http://tomcat.apache.org/xml"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
+   version="1.0">
+    <role rolename="manager-gui"/>
+    <role rolename="manager-script"/>
+    <role rolename="manager-jmx"/>
+    <role rolename="manager-status"/>
+    <user username="admin" password="adminpassword" roles="manager-gui,manager-script,manager-jmx,manager-status"/>
+    <user username="deployer" password="deployerpassword" roles="manager-script"/>
+    <user username="monitor" password="monitorpassword" roles="manager-status"/>
+   </tomcat-users>
+---
+# tomcat-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tomcat-secret
+type: Opaque
+data:
+  # username: admin (base64 encoded)
+  TOMCAT_USERNAME: YWRtaW4=
+  # password: password123 (base64 encoded)
+  TOMCAT_PASSWORD: cGFzc3dvcmQxMjM=
+---
+# tomcat-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tomcat
+  labels:
+    app: tomcat
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tomcat
+  template:
+    metadata:
+      labels:
+        app: tomcat
+    spec:
+      containers:
+        - name: tomcat
+          #image: bitnami/tomcat:9.0
+          image: nexus:30999/test-mysql:0695030c7a9c
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TOMCAT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: tomcat-secret
+                  key: TOMCAT_USERNAME
+            - name: TOMCAT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tomcat-secret
+                  key: TOMCAT_PASSWORD
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "300m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          volumeMounts:
+            - name: config-volume
+              mountPath: /opt/bitnami/tomcat/conf/server.xml
+              subPath: server.xml
+            - name: webapps-volume
+              mountPath: /opt/bitnami/tomcat/webapps
+            - name: users-volume
+              mountPath: /opt/bitnami/tomcat/conf/tomcat-users.xml
+              subPath: tomcat-users.xml
+      imagePullSecrets:
+        - name: nexus-cred
+      volumes:
+        - name: users-volume
+          configMap:
+            name: tomcat-config
+        - name: config-volume
+          configMap:
+            name: tomcat-config
+        - name: webapps-volume
+          emptyDir: {}
+
+---
+# tomcat-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: tomcat-service
+spec:
+  type: LoadBalancer  # Change to NodePort or ClusterIP based on your needs
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: tomcat
+---
+# tomcat-hpa.yaml (Optional Horizontal Pod Autoscaling)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: tomcat-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: tomcat
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
