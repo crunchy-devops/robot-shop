@@ -3,8 +3,8 @@ kind: Pod
 metadata:
   name: nfs-test-pod
 spec:
-  containers:
-    - name: test-container
+  initContainers:
+    - name: init-container
       image: bitnami/mysql:latest
       env:
         - name: MYSQL_ROOT_PASSWORD
@@ -12,9 +12,16 @@ spec:
       volumeMounts:
         - name: nfs-volume
           mountPath: /bitnami/mysql/data
-        - mountPath:  /foo
-          name: dump
-          readOnly: false
+  containers:
+    - name: mysql
+      image: bitnami/mysql:latest
+      env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "mypassword"
+
+      volumeMounts:
+        - name: nfs-volume
+          mountPath: /bitnami/mysql/data
   volumes:
     - name: nfs-volume
       persistentVolumeClaim:
