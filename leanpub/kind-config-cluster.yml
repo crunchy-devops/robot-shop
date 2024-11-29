@@ -20,15 +20,23 @@ nodes:
     extraMounts:
       - hostPath: /mnt/nfs_share
         containerPath: /mnt/nfs_share
+      - hostPath: /mnt/dump
+        containerPath: /mnt/dump
   - role: worker
     extraMounts:
       - hostPath: /mnt/nfs_share
         containerPath: /mnt/nfs_share
+      - hostPath: /mnt/dump
+        containerPath: /mnt/dump
   - role: worker
     extraMounts:
       - hostPath: /mnt/nfs_share
         containerPath: /mnt/nfs_share
+      - hostPath: /mnt/dump
+        containerPath: /mnt/dump
   - role: worker
     extraMounts:
       - hostPath: /mnt/nfs_share
         containerPath: /mnt/nfs_share
+      - hostPath: /mnt/dump
+        containerPath: /mnt/dump

@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-dump-loader
+spec:
+  template:
+    spec:
+      containers:
+        - name: mysql-client
+          image: joseluisq/mysql-client:latest
+          command: ["/bin/bash"]
+          args:
+            - "-c"
+            - |
+              mysql -h mysql.default.svc.cluster.local -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS cities;"
+              mysql -h mysql.default.svc.cluster.local -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE USER 'shipping'@'%' IDENTIFIED BY 'secret'; GRANT ALL PRIVILEGES ON *.* TO 'shipping'@'%' WITH GRANT OPTION;"
+              mysql -h mysql.default.svc.cluster.local -u root -p$MYSQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES;"
+              mysql -h mysql.default.svc.cluster.local -u root -p$MYSQL_ROOT_PASSWORD cities < /dump/10-dump.sql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
+          volumeMounts:
+            - name: dump-volume
+              mountPath: /dump
+      restartPolicy: Never
+      volumes:
+        - name: dump-volume
+          persistentVolumeClaim:
+            claimName: nfs-pvc-2

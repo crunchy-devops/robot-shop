@@ -46,12 +46,15 @@ sudo exportfs -v
 sudo systemctl enable --now nfs-server
 # change kind-config file
 
-
+# first solution 
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
 helm repo update
 helm install nfs-client nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
   --set nfs.server=172.16.0.8 \
   --set nfs.path=/mnt/dump
+#or 
+curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.9.0/deploy/install-driver.sh | bash -s v4.9.0 --
+
 
 ```
 

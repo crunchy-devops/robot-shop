@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mysql-and-load
+description: A Helm chart deploying mysql and load db
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
