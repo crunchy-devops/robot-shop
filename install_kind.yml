@@ -21,6 +21,7 @@
       copy:
         src: 'leanpub/kind-config-cluster.yml'
         dest: '/home/ubuntu'
+    - name:
     - name: Check if the cluster exists
       shell: kind get clusters
       register: result
@@ -28,6 +29,7 @@
       debug:
         msg: "{{ result.stdout }}"
     - name: create KinD cluster
+      become_user: "{{ ansible_ssh_user }}"
       shell:
         cmd: kind create cluster --name remote --config kind-config-cluster.yml
         chdir: /home/ubuntu

@@ -12,7 +12,6 @@ sudo chmod 777 /mnt/dump
 sudo chown nobody:nogroup /mnt/nfs_share
 sudo chown nobody:nogroup /mnt/dump
 
-vi /etc/exports
 sudo vi /etc/exports
 # Added the following lines
 #/mnt/nfs_share *(rw,sync,no_subtree_check,no_root_squash)

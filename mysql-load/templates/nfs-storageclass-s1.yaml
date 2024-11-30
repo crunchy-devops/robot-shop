@@ -4,7 +4,7 @@ metadata:
   name: nfs-csi-server1
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 172.16.0.8
+  server: 172.16.0.5
   share: /mnt/nfs_share
   subDir: "data"
 reclaimPolicy: Delete

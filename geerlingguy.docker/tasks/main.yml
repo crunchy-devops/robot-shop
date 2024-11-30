@@ -65,6 +65,12 @@
   when: docker_daemon_options.keys() | length > 0
   notify: restart docker
 
+- name: Add nexus entry ro /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ nexus_ip }} nexus"
+    state: present
+
 - name: Ensure Docker is started and enabled at boot.
   service:
     name: docker
