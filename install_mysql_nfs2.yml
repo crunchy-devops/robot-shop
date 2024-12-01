@@ -1,0 +1,46 @@
+---
+- name: load mysql
+  hosts: all
+  tasks:
+    - name:  copy storage nfs 2
+      copy:
+        src: mysql-load/templates/nfs-storageclass-s2.yaml
+        dest: /home/ubuntu/nfs-storageclass-s2.yaml
+    - name: Get nfs server ip address
+      shell: hostname -I | awk ' {print $1}'
+      register: ip_nfs_server
+    - name: Replace ip nfs server in a storage class
+      replace:
+        path: /home/ubuntu/nfs-storageclass-s2.yaml
+        regexp: 'server: nfs_server_ip'
+        replace: "server: {{ ip_nfs_server.stdout}} "
+    - name: Check if storageclass exists
+      shell: kubectl get storageclasses.storage.k8s.io nfs-csi-server2
+      register: storageclass_info
+      delegate_to: ubuntu01
+      ignore_errors: yes
+    - name: Run storageclass-s2
+      shell: kubectl create -f /home/ubuntu/nfs-storageclass-s2.yaml
+      delegate_to: ubuntu01
+      when:  storageclass_info.rc == 1
+    - name:  Copy pvc nfs 2
+      copy:
+        src: mysql-load/templates/nfs-pvc-2.yaml
+        dest: /home/ubuntu/nfs-pvc-2.yaml
+    - name: Check if pvc-2 exists
+      shell: kubectl get pvc nfs-pvc-2
+      register: pvc_info
+      ignore_errors: yes
+      delegate_to: ubuntu01
+    - name: Run pvc-1
+      shell: kubectl create -f /home/ubuntu/nfs-pvc-2.yaml
+      when:  pvc_info.rc == 1
+      delegate_to: ubuntu01
+    - name: Check PVC status
+      shell: kubectl get pvc nfs-pvc-2
+      register: pvc_info
+      until: "'Bound' in pvc_info.stdout"
+      retries: 20
+      delay: 10
+      delegate_to: ubuntu01
+

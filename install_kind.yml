@@ -67,7 +67,6 @@
       shell:
         cmd: kind create cluster --name remote --config kind-config-cluster.yml
         chdir: /home/ubuntu
-      when: result.stdout != "remote"
     - name: set in KinD nfs kubernetes objects
       become_user: "{{ ansible_ssh_user }}"
       shell: curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.9.0/deploy/install-driver.sh | bash -s v4.9.0 --
