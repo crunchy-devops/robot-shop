@@ -3,6 +3,9 @@ kind: Service
 metadata:
   name: mysql
   namespace: default
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "10"
 spec:
   clusterIP: None
   ports:

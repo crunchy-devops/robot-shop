@@ -2,22 +2,14 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: nfs-csi-server1
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-10"
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 172.16.0.5
+  server: nfs_server_ip
   share: /mnt/nfs_share
   subDir: "data"
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: nfs-pvc
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: nfs-csi-server1
+

@@ -21,16 +21,53 @@
       copy:
         src: 'leanpub/kind-config-cluster.yml'
         dest: '/home/ubuntu'
-    - name:
+    - name: install nfs package
+      apt:
+        name:
+          - nfs-kernel-server
+        state: present
+        update_cache: yes
+    - name: install multiple shell for nfs disk
+      shell: |
+        sudo mkdir -p /mnt/nfs_share
+        sudo mkdir -p /mnt/dump
+        sudo chmod 777  /mnt/nfs_share
+        sudo chmod 777 /mnt/dump
+        sudo chown nobody:nogroup /mnt/nfs_share
+        sudo chown nobody:nogroup /mnt/dump
+    - name: insert a block file in exports
+      blockinfile:
+        path: /etc/exports
+        block: |
+          /mnt/nfs_share *(rw,sync,no_subtree_check,no_root_squash)
+          /mnt/dump  *(rw,sync,no_subtree_check,no_root_squash)
+        marker: "# ANSIBLE MANAGED BLOCK"
+        state: present
+        check_mode: yes
+      register: block_check
+      failed_when: (block_check is changed)
+    - name: enable nfs-server
+      shell: |
+        sudo exportfs -rav
+        sudo systemctl enable --now nfs-server
     - name: Check if the cluster exists
       shell: kind get clusters
       register: result
     - name: Return value
       debug:
         msg: "{{ result.stdout }}"
+    - name: Delete cluster KinD if already there
+      become_user: "{{ ansible_ssh_user }}"
+      shell:
+        cmd: kind delete cluster --name remote
+        chdir: /home/ubuntu
+      when: result.stdout == "remote"
     - name: create KinD cluster
       become_user: "{{ ansible_ssh_user }}"
       shell:
         cmd: kind create cluster --name remote --config kind-config-cluster.yml
         chdir: /home/ubuntu
       when: result.stdout != "remote"
+    - name: set in KinD nfs kubernetes objects
+      become_user: "{{ ansible_ssh_user }}"
+      shell: curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.9.0/deploy/install-driver.sh | bash -s v4.9.0 --

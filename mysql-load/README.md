@@ -61,3 +61,11 @@ spec:
   storageClassName: nfs-csi-server1
 
 ```
+
+```shell
+helm package mysql-load
+curl -u admin:xxxxx http://170.75.162.227:32510/repository/robotshop-helm/ --upload-file mysql-and-load-1.0.0.tgz
+helm install v1.0.0 robotshop-helm/mysql-and-load
+# if repo doesn't exist in helm
+helm repo add robotshop-helm  http://170.75.162.227:32510/repository/robotshop-helm/ --username admin --password xxxxx
+```

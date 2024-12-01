@@ -1,0 +1,58 @@
+---
+- name: load mysql
+  hosts: all
+  tasks:
+    - name:  copy storage nfs 1
+      copy:
+        src: mysql-load/templates/nfs-storageclass-s1.yaml
+        dest: /home/ubuntu/nfs-storageclass-s1.yaml
+    - name: Get nfs server ip address
+      shell: hostname -I | awk ' {print $1}'
+      register: ip_nfs_server
+    - name: Replace ip nfs server in a storage class
+      replace:
+        path: /home/ubuntu/nfs-storageclass-s1.yaml
+        regexp: 'server: nfs_server_ip'
+        replace: "server: {{ ip_nfs_server.stdout}} "
+    - name: Check if storageclass exists
+      kubernetes.core.k8s_info:
+        kind: StorageClass
+        name: nfs-csi-server1
+      register: storageclass_info
+      delegate_to: ubuntu01
+      environment:
+        PATH: "/home/ubuntu/venv/bin:{{ ansible_env.PATH }}"
+    - name: Set fact based on storage_class existence
+      set_fact:
+        storage_exists: "{{ storageclass_info.resources | length > 0 }}"
+    - name: Run storageclass-s1
+      shell: kubectl create -f /home/ubuntu/nfs-storageclass-s1.yaml
+      when:  storage_exists is not defined
+    - name:  Copy pvc nfs 1
+      copy:
+        src: mysql-load/templates/nfs-pvc-1.yaml
+        dest: /home/ubuntu/nfs-pvc-1.yaml
+    - name: Check if pvc-1 exists
+      kubernetes.core.k8s_info:
+        kind: PersistentVolumeClaim
+        name: nfs-pvc
+      register: pvc_info
+      delegate_to: ubuntu01
+      environment:
+        PATH: "/home/ubuntu/venv/bin:{{ ansible_env.PATH }}"
+    - name: Set fact based on pvc existence
+      set_fact:
+        pvc_exists: "{{ pvc_info.resources | length > 0 }}"
+    - name: Run pvc-1
+      shell: kubectl create -f /home/ubuntu/nfs-pvc-1.yaml
+      when:  pvc_exists is not defined
+    - name: Check PVC status
+      shell: kubectl get pvc nfs-pvc
+      register: pvc_info
+      until: "'Bound' in pvc_info.stdout"
+      retries: 20
+      delay: 10
+      delegate_to: ubuntu01
+      environment:
+          PATH: "/home/ubuntu/venv/bin:{{ ansible_env.PATH }}"
+
