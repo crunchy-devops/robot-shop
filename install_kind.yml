@@ -55,6 +55,10 @@
         marker: "# ANSIBLE MANAGED BLOCK"
       check_mode: true
       register:  block_check
+      tags: check_export
+    - debug:
+        var: block_check
+      tags: first_check
     - name: Insert block only if not present
       blockinfile:
         dest: /etc/exports
@@ -63,6 +67,7 @@
           /mnt/dump  *(rw,sync,no_subtree_check,no_root_squash)
         marker: "# ANSIBLE MANAGED BLOCK"
       when: block_check.changed
+      tags: add_export
     - name: enable nfs-server
       shell: |
         sudo exportfs -rav
