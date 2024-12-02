@@ -53,7 +53,7 @@
           /mnt/nfs_share *(rw,sync,no_subtree_check,no_root_squash)
           /mnt/dump  *(rw,sync,no_subtree_check,no_root_squash)
         marker: "# ANSIBLE MANAGED BLOCK"
-        check_mode: true
+      check_mode: true
       register:  block_check
     - name: Insert block only if not present
       blockinfile:
