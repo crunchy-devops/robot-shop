@@ -54,7 +54,6 @@
           /mnt/dump  *(rw,sync,no_subtree_check,no_root_squash)
         marker: "# ANSIBLE MANAGED BLOCK"
         state: present
-        check_mode: yes
       register: block_check
       failed_when: (block_check is changed)
     - name: enable nfs-server
