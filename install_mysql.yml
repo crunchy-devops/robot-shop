@@ -1,0 +1,47 @@
+---
+- name: load mysql
+  hosts: all
+  tasks:
+    - name:  copy secret file
+      copy:
+        src: mysql-load/templates/mysql-secret.yaml
+        dest: /home/ubuntu/mysql-secret.yaml
+    - name: Check if mysql-secret exists
+      shell: kubectl get secret mysql-secret
+      register: secret_info
+      delegate_to: ubuntu01
+      ignore_errors: yes
+    - name: Run mysql secret
+      shell: kubectl create -f /home/ubuntu/mysql-secret.yaml
+      delegate_to: ubuntu01
+      when:  secret_info.rc == 1
+    - name:  Copy StatefulSet Mysql
+      copy:
+        src: mysql-load/templates/mysql-sts.yaml
+        dest: /home/ubuntu/mysql-sts.yaml
+    - name: Check if StatefulSet Mysql exists
+      shell: kubectl get statefulsets.apps mysql
+      register: mysql_info
+      ignore_errors: yes
+      delegate_to: ubuntu01
+    - name: Run mysql
+      shell: kubectl create -f /home/ubuntu/mysql-sts.yaml
+      when:  mysql_info.rc == 1
+      delegate_to: ubuntu01
+    - name: Check Mysql status
+      shell: kubectl get statefulset mysql
+      register: mysql_info
+      until: "'1/1' in mysql_info.stdout"
+      retries: 20
+      delay: 10
+      delegate_to: ubuntu01
+    - name: Copy StatefulSet Mysql
+      copy:
+        src: mysql-load/templates/mysql-service.yaml
+        dest: /home/ubuntu/mysql-service.yaml
+    - name: Run mysql service
+      shell: kubectl create -f /home/ubuntu/mysql-service.yaml
+    - name: Copy Mysql job for loading cities
+      copy:
+        src: mysql-load/templates/mysql-job.yaml
+        dest: /home/ubuntu/mysql-job.yaml

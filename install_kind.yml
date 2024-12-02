@@ -27,14 +27,25 @@
           - nfs-kernel-server
         state: present
         update_cache: yes
+    - name: erase nfs directories
+      shell: |
+        sudo rm -Rf /mnt/nfs_share/*
+        sudo rm -Rf /mnt/dump/*
+      ignore_errors: yes
     - name: install multiple shell for nfs disk
       shell: |
-        sudo mkdir -p /mnt/nfs_share
-        sudo mkdir -p /mnt/dump
+        sudo mkdir -p /mnt/nfs_share/data
+        sudo mkdir -p /mnt/dump/file
         sudo chmod 777  /mnt/nfs_share
         sudo chmod 777 /mnt/dump
         sudo chown nobody:nogroup /mnt/nfs_share
         sudo chown nobody:nogroup /mnt/dump
+    - name: Copy Dump file
+      copy:
+        src: mysql/scripts/10-dump.sql.gz
+        dest: /mnt/dump/file/10-dump.sql.gz
+    - name: gzip dump mysql file
+      shell: gzip -d /mnt/dump/file/10-dump.sql.gz
     - name: insert a block file in exports
       blockinfile:
         path: /etc/exports
