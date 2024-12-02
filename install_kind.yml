@@ -52,7 +52,6 @@
         block: |
           /mnt/nfs_share *(rw,sync,no_subtree_check,no_root_squash)
           /mnt/dump  *(rw,sync,no_subtree_check,no_root_squash)
-        marker: "# ANSIBLE MANAGED BLOCK"
       check_mode: true
       register:  block_check
       tags: check_export
@@ -65,9 +64,11 @@
         block: |
           /mnt/nfs_share *(rw,sync,no_subtree_check,no_root_squash)
           /mnt/dump  *(rw,sync,no_subtree_check,no_root_squash)
-        marker: "# ANSIBLE MANAGED BLOCK"
       when: block_check.changed
       tags: add_export
+    - debug:
+        var: block_check
+      tags: second_check
     - name: enable nfs-server
       shell: |
         sudo exportfs -rav
