@@ -32,7 +32,7 @@
       register: pvc_info
       ignore_errors: yes
       delegate_to: ubuntu01
-    - name: Run pvc-1
+    - name: Run pvc-2
       shell: kubectl create -f /home/ubuntu/nfs-pvc-2.yaml
       when:  pvc_info.rc == 1
       delegate_to: ubuntu01

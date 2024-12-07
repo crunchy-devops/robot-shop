@@ -1,0 +1,25 @@
+---
+- name: load mysql
+  hosts: all
+  tasks:
+    - name:  Copy mysql job kubernetes object
+      copy:
+        src: mysql-load/templates/mysql-job.yaml
+        dest: /home/ubuntu/mysql-job.yaml
+    - name: Check if mysql-dump-loader exists
+      shell: kubectl get job mysql-dump-loader
+      register: mysql_dump
+      delegate_to: ubuntu01
+      ignore_errors: yes
+    - name: Run mysql job
+      shell: kubectl create -f /home/ubuntu/mysql-job.yaml
+      delegate_to: ubuntu01
+      when:  mysql_dump.rc == 1
+    - name: Check Mysql job status
+      shell: kubectl get job mysql-dump-loader
+      register: mysql_info
+      until: "'Complete' in mysql_info.stdout"
+      retries: 20
+      delay: 10
+      delegate_to: ubuntu01
+
