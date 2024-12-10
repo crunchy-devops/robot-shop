@@ -16,7 +16,8 @@ spec:
             - "-c"
             - |
               mysql -h mysql.default.svc.cluster.local -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS cities;"
-              mysql -h mysql.default.svc.cluster.local -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE USER IF NOT EXIST 'shipping'@'%' IDENTIFIED BY 'secret'; GRANT ALL PRIVILEGES ON *.* TO 'shipping'@'%' WITH GRANT OPTION;"
+              mysql -h mysql.default.svc.cluster.local -u root -p$MYSQL_ROOT_PASSWORD -e "DROP USER shipping;"
+              mysql -h mysql.default.svc.cluster.local -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE USER 'shipping'@'%' IDENTIFIED BY 'secret'; GRANT ALL PRIVILEGES ON *.* TO 'shipping'@'%' WITH GRANT OPTION;"
               mysql -h mysql.default.svc.cluster.local -u root -p$MYSQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES;"
               mysql -h mysql.default.svc.cluster.local -u root -p$MYSQL_ROOT_PASSWORD cities < /dump/10-dump.sql
           env:

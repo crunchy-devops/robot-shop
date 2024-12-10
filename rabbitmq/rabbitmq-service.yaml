@@ -1,0 +1,8 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: my-rabbitmq-cluster
+spec:
+  replicas: 1  # Adjust as needed for more replicas
+  service:
+    type: NodePort # or NodePort, depending on your access needs

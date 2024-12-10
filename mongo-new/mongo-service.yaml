@@ -4,7 +4,7 @@ metadata:
   name: mongo
   namespace: default
 spec:
-  clusterIP: None
+  #clusterIP: None
   ports:
     - port: 27017
       name: mongo

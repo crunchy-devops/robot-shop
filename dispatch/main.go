@@ -9,11 +9,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/instana/go-sensor"
 	ot "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	otlog "github.com/opentracing/opentracing-go/log"
 	"github.com/streadway/amqp"
+	"go.uber.org/zap"
 )
 
 const (
@@ -166,20 +166,33 @@ func processSale(parentSpan ot.Span) {
 
 func main() {
 	rand.Seed(time.Now().Unix())
+	//logger, err := zap.NewProduction()
 
+	config := zap.NewProductionConfig()
+	config.OutputPaths = []string{"app.log"}
+	logger, err := config.Build()
+
+	if err != nil {
+		log.Fatal(err)
+	}
 	// Instana tracing
-	ot.InitGlobalTracer(instana.NewTracerWithOptions(&instana.Options{
-		Service:           Service,
-		LogLevel:          instana.Info,
-		EnableAutoProfile: true,
-	}))
+	//ot.InitGlobalTracer(instana.NewTracerWithOptions(&instana.Options{
+	//	Service:           Service,
+	//	LogLevel:          instana.Info,
+	//	EnableAutoProfile: true,
+	//}))
+
+	sugar := logger.Sugar()
+	defer logger.Sync()
 
 	// Init amqpUri
 	// get host from environment
 	amqpHost, ok := os.LookupEnv("AMQP_HOST")
 	if !ok {
-		amqpHost = "rabbitmq"
+		//amqpHost = "rabbitmq"
+		amqpHost = "my-rabbitmq-cluster"
 	}
+	amqpHost = "my-rabbitmq-cluster"
 	amqpUri = fmt.Sprintf("amqp://guest:guest@%s:5672/", amqpHost)
 
 	// get error threshold from environment
@@ -197,7 +210,8 @@ func main() {
 			errorPercent = epcti
 		}
 	}
-	log.Printf("Error Percent is %d\n", errorPercent)
+	//log.Printf("Error Percent is %d\n", errorPercent)
+	sugar.Info("Error Percent is %d\n", errorPercent)
 
 	// MQ error channel
 	rabbitCloseError = make(chan *amqp.Error)
@@ -213,21 +227,25 @@ func main() {
 		for {
 			// wait for rabbit to be ready
 			ready := <-rabbitReady
-			log.Printf("Rabbit MQ ready %v\n", ready)
-
+			//log.Printf("Rabbit MQ ready %v\n", ready)
+			sugar.Info("Rabbit MQ ready %v\n", ready)
 			// subscribe to bound queue
 			msgs, err := rabbitChan.Consume("orders", "", true, false, false, false, nil)
 			failOnError(err, "Failed to consume")
 
 			for d := range msgs {
-				log.Printf("Order %s\n", d.Body)
-				log.Printf("Headers %v\n", d.Headers)
+				//log.Printf("Order %s\n", d.Body)
+				//log.Printf("Headers %v\n", d.Headers)
+				sugar.Info("Order %s\n", d.Body)
+				sugar.Info("Headers %v\n", d.Headers)
+
 				id := getOrderId(d.Body)
 				go createSpan(d.Headers, id)
 			}
 		}
 	}()
 
-	log.Println("Waiting for messages")
+	//log.Println("Waiting for messages")
+	sugar.Info("Waiting for messages")
 	select {}
 }

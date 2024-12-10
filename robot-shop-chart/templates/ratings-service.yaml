@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: ratings
   labels:
-    service: ratings
+    io.kompose.service: ratings
 spec:
   ports:
     - name: http
       port: 80
       targetPort: 80
   selector:
-    service: ratings
+    io.kompose.service: ratings

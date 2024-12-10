@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: user
   labels:
-    service: user
+    io.kompose.service: user
 spec:
   ports:
     - name: http
       port: 8080
       targetPort: 8080
   selector:
-    service: user
+    io.kompose.service: user

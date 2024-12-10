@@ -269,7 +269,8 @@ redisClient.on('ready', (r) => {
 // set up Mongo
 function mongoConnect() {
     return new Promise((resolve, reject) => {
-        var mongoURL = process.env.MONGO_URL || 'mongodb://mongodb:27017/users';
+        //var mongoURL = process.env.MONGO_URL || 'mongodb://mongodb:27017/users';
+        var mongoURL = 'mongodb://mongo.default.svc.cluster.local:27017/users';
         mongoClient.connect(mongoURL, (error, client) => {
             if(error) {
                 reject(error);

@@ -1,4 +1,6 @@
-const instana = require('@instana/collector');
+const instana  = require('@instana/collector');
+const pinoHttp = require('pino-http');
+const logger = require('./logger');
 // init tracing
 // MUST be done before loading anything else!
 instana({
@@ -10,18 +12,28 @@ instana({
 const mongoClient = require('mongodb').MongoClient;
 const mongoObjectID = require('mongodb').ObjectID;
 const bodyParser = require('body-parser');
-const express = require('express');
-const pino = require('pino');
+const express = require('express');;
 const expPino = require('express-pino-logger');
 
-const logger = pino({
-    level: 'info',
-    prettyPrint: false,
-    useLevelLabels: true
-});
-const expLogger = expPino({
-    logger: logger
-});
+//const logger = pino({
+//    level: 'info',
+//    useLevelLabels: true,
+//    transport: {
+//      target: 'pino-pretty',
+//      options: {
+//          colorize: true,
+//      },
+//    },
+//    streams: [
+//        { stream: logStream }, // Log to file
+//        { stream: process.stdout }, // Log to console
+//    ],
+//});
+
+//module.exports = logger
+//const expLogger = expPino({
+//    logger: logger
+//});
 
 // MongoDB
 var db;
@@ -30,7 +42,8 @@ var mongoConnected = false;
 
 const app = express();
 
-app.use(expLogger);
+//app.use(expLogger);
+app.use(pinoHttp({logger}));
 
 app.use((req, res, next) => {
     res.set('Timing-Allow-Origin', '*');
@@ -154,7 +167,8 @@ app.get('/search/:text', (req, res) => {
 // set up Mongo
 function mongoConnect() {
     return new Promise((resolve, reject) => {
-        var mongoURL = process.env.MONGO_URL || 'mongodb://mongo.default.svc.cluster.local:27017/catalogue';
+        //var mongoURL = process.env.MONGO_URL || 'mongodb://mongo.default.svc.cluster.local:27017/catalogue';
+        var mongoURL = 'mongodb://mongo.default.svc.cluster.local:27017/catalogue';
         logger.info(mongoURL);
         mongoClient.connect(mongoURL, (error, client) => {
             if(error) {

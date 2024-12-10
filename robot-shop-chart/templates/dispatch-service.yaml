@@ -5,7 +5,7 @@ kind: Service
 metadata:
   name: dispatch
   labels:
-    service: dispatch
+    io.kompose.service: dispatch
 spec:
   clusterIP: None
   ports:
@@ -13,4 +13,4 @@ spec:
       port: 55555
       targetPort: 0
   selector:
-    service: dispatch
+    io.kompose.service: dispatch
