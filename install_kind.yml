@@ -93,3 +93,6 @@
     - name: set in KinD nfs kubernetes objects
       become_user: "{{ ansible_ssh_user }}"
       shell: curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.9.0/deploy/install-driver.sh | bash -s v4.9.0 --
+    - name: set in KinD rabbitmq kubernetes objects
+      become_user: "{{ ansible_ssh_user }}"
+      shell: kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"
