@@ -65,10 +65,17 @@
   when: docker_daemon_options.keys() | length > 0
   notify: restart docker
 
-- name: Add nexus entry ro /etc/hosts
+- name: Get private ip address
+  shell: hostname -I | awk ' { print  $2 } '
+  register: ip_nexus
+- name: debug
+  debug:
+    msg: "ip '{{ ip_nexus.stdout }} "
+
+- name: Add nexus entry in /etc/hosts
   lineinfile:
     path: /etc/hosts
-    line: "{{ nexus_ip }} nexus"
+    line: "{{ ip_nexus.stdout }} nexus"
     state: present
 
 - name: Ensure Docker is started and enabled at boot.
@@ -84,6 +91,18 @@
 
 - include_tasks: docker-compose.yml
   when: docker_install_compose | bool
+
+- name: check if the file exists
+  stat:
+    path: /var/run/docker.sock
+  register: file_status
+
+- name: Change permission of docker.sock
+  become: yes
+  file:
+    path: /var/run/docker.sock
+    mode: '0666'
+  when: file_status.stat.exists
 
 - name: Get docker group info using getent.
   getent:

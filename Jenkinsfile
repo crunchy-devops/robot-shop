@@ -102,10 +102,10 @@ pipeline {
                     }
                 }
         }
-        stage('install docker'){
-            steps {
-                    ansibleTower jobTemplate: 'install docker', jobType: 'run', throwExceptionWhenFail: false, towerCredentialsId: 'ansiblelogin', towerLogLevel: 'full', towerServer: 'awx'
-                }
-        }
+        //stage('install docker'){
+        //    steps {
+        //            ansibleTower jobTemplate: 'install docker', jobType: 'run', throwExceptionWhenFail: false, towerCredentialsId: 'ansiblelogin', towerLogLevel: 'full', towerServer: 'awx'
+        //        }
+        //}
    }
 }
